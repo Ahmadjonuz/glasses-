@@ -6,7 +6,7 @@ declare global {
 }
 
 const options = {
-  maxPoolSize: 10,
+  maxPoolSize: 10, // O'zgaruvchini qo'llab-quvvatlanganligiga ishonch hosil qiling
   serverSelectionTimeoutMS: 5000,
   socketTimeoutMS: 45000,
 }
@@ -30,15 +30,12 @@ const initMongoClient = async (): Promise<MongoClient> => {
 let clientPromise: Promise<MongoClient>
 
 if (process.env.NODE_ENV === 'development') {
-  // In development, use a global variable so the value
-  // is preserved across module reloads caused by HMR
-  if (!global._mongoClientPromise) {
-    global._mongoClientPromise = initMongoClient()
+  if (!globalThis._mongoClientPromise) {
+    globalThis._mongoClientPromise = initMongoClient()
   }
-  clientPromise = global._mongoClientPromise
+  clientPromise = globalThis._mongoClientPromise
 } else {
-  // In production, it's best to not use a global variable
   clientPromise = initMongoClient()
 }
 
-export { clientPromise } 
+export { clientPromise }
