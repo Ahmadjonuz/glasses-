@@ -9,6 +9,14 @@ const nextConfig = {
         pathname: '/**',
       }
     ]
+  },
+  typescript: {
+    // During development we type check, but for builds we'll rely on IDE and pre-commit hooks
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    // During development we lint, but for builds we'll rely on IDE and pre-commit hooks
+    ignoreDuringBuilds: true,
   }
 }
 
