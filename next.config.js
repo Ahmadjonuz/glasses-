@@ -34,6 +34,11 @@ const nextConfig = {
     }
     return config
   },
+  // Configure static generation
+  output: 'standalone',
+  experimental: {
+    missingSuspenseWithCSRError: false,
+  },
 }
 
 module.exports = nextConfig 

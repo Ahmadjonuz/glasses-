@@ -1,6 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { products } from '@/lib/products'
-import { PRODUCT_CATEGORIES, PRODUCT_BRANDS, PRODUCT_GENDERS } from '@/lib/models/Product'
+import { NextResponse } from 'next/server'
 import { clientPromise } from '@/lib/db'
 
 const PRICE_RANGES = {
@@ -22,6 +20,11 @@ export async function GET(request: Request) {
     const limit = parseInt(url.searchParams.get('limit') || '8')
     const search = url.searchParams.get('search') || ''
     const category = url.searchParams.get('category') || ''
+
+    // During build time, return empty results
+    if (process.env.NEXT_PHASE === 'phase-production-build') {
+      return NextResponse.json({ products: [], total: 0 })
+    }
 
     const client = await clientPromise
     if (!client) {
