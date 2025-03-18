@@ -6,7 +6,7 @@ declare global {
 }
 
 const options = {
-  maxPoolSize: 10, // O'zgaruvchini qo'llab-quvvatlanganligiga ishonch hosil qiling
+  maxPoolSize: 10,
   serverSelectionTimeoutMS: 5000,
   socketTimeoutMS: 45000,
 }
@@ -27,15 +27,9 @@ const initMongoClient = async (): Promise<MongoClient> => {
 }
 
 // Initialize client promise
-let clientPromise: Promise<MongoClient>
-
-if (process.env.NODE_ENV === 'development') {
-  if (!globalThis._mongoClientPromise) {
-    globalThis._mongoClientPromise = initMongoClient()
-  }
-  clientPromise = globalThis._mongoClientPromise
-} else {
-  clientPromise = initMongoClient()
-}
+const clientPromise: Promise<MongoClient> = 
+  process.env.NODE_ENV === 'development'
+    ? global._mongoClientPromise ?? (global._mongoClientPromise = initMongoClient())
+    : initMongoClient()
 
 export { clientPromise }
