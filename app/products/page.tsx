@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import Image from 'next/image'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { FilterSidebar } from '@/components/FilterSidebar'
-import { useCart } from '@/contexts/cart-context'
 import { Product } from '@/lib/types'
 import { createClient } from '@supabase/supabase-js'
+import { MainHeader } from '@/components/MainHeader'
+import { ProductCard } from '@/app/components/ProductCard'
+import { ModeToggle } from "@/components/ui/mode-toggle"
+import { ShoppingCart } from "lucide-react"
+import { useCart } from "@/contexts/cart-context"
+import Link from "next/link"
+import { MobileNav } from "@/app/components/MobileNav"
 
 type FilterType = 'categories' | 'brands' | 'genders' | 'priceRanges'
 
@@ -27,9 +30,10 @@ export const supabase = createClient(supabaseUrl, supabaseKey)
 export default function ProductsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { addToCart } = useCart()
   const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
+  const { items } = useCart()
 
   const [selectedFilters, setSelectedFilters] = useState<Filters>({
     categories: searchParams.getAll('category'),
@@ -85,78 +89,50 @@ export default function ProductsPage() {
   }, [selectedFilters])
 
   return (
-    <div className="container max-w-7xl px-4 py-8">
-      <div className="flex gap-8">
-        {/* Filter Sidebar */}
-        <div className="w-64 flex-shrink-0">
-          <FilterSidebar
-            selectedFilters={selectedFilters}
-            onFilterChange={handleFilterChange}
-          />
-        </div>
+    <div className="flex flex-col min-h-screen">
+      <MainHeader 
+        products={products} 
+        showMobileMenu={true}
+        onShowProducts={() => setShowMobileFilters(true)}
+      />
 
-        {/* Products Grid */}
-        <div className="flex-1">
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((n) => (
-                <Card key={n} className="animate-pulse">
-                  <div className="aspect-[4/3] bg-muted" />
-                  <div className="p-4 space-y-3">
-                    <div className="h-4 bg-muted rounded w-3/4" />
-                    <div className="h-4 bg-muted rounded w-1/2" />
-                    <div className="h-8 bg-muted rounded" />
-                  </div>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {products.map((product) => (
-                <Card key={product._id} className="overflow-hidden">
-                  <div className="aspect-[4/3] relative">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-semibold mb-1">{product.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">{product.brand}</p>
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <span className="text-lg font-bold">₹{product.newPrice}</span>
-                        {product.oldPrice && product.oldPrice > product.newPrice && (
-                          <span className="text-sm text-muted-foreground line-through ml-2">
-                            ₹{product.oldPrice}
-                          </span>
-                        )}
-                      </div>
+      <main className="flex-1 pb-16 md:pb-0">
+        <section className="w-full py-12">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col gap-4 md:flex-row">
+              <FilterSidebar
+                selectedFilters={selectedFilters}
+                onFilterChange={handleFilterChange}
+                isOpen={showMobileFilters}
+                onClose={() => setShowMobileFilters(false)}
+              />
+              <div className="flex-1">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {isLoading ? (
+                    <div>Yuklanmoqda...</div>
+                  ) : (
+                    products.map((product) => (
+                      <ProductCard key={product._id} product={product} />
+                    ))
+                  )}
+                  {isLoading ? (
+                    <div>Yuklanmoqda...</div>
+                  ) : products.length === 0 ? (
+                    <div className="text-center col-span-full py-12">
+                      <h3 className="text-lg font-semibold">Mahsulotlar topilmadi</h3>
+                      <p className="text-muted-foreground mt-2">
+                        Boshqa filtrlash parametrlarini tanlashga harakat qiling.
+                      </p>
                     </div>
-                    <Button 
-                      className="w-full"
-                      onClick={() => addToCart(product, 1)}
-                    >
-                      Add to Cart
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+                  ) : null}
+                </div>
+              </div>
             </div>
-          )}
+          </div>
+        </section>
+      </main>
 
-          {!isLoading && products.length === 0 && (
-            <div className="text-center py-12">
-              <h2 className="text-2xl font-semibold mb-2">No Products Found</h2>
-              <p className="text-muted-foreground">
-                Try adjusting your filters to find what you're looking for.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+      <MobileNav onShowProducts={() => setShowMobileFilters(true)} />
     </div>
   )
 }

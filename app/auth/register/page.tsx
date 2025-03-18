@@ -24,7 +24,7 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match")
+      toast.error("Parollar mos kelmadi")
       setIsLoading(false)
       return
     }
@@ -42,7 +42,7 @@ export default function RegisterPage() {
 
       if (error) throw error
 
-      toast.success("Registration successful! Please check your email to verify your account.")
+      toast.success("Ro'yxatdan o'tish muvaffaqiyatli! Iltimos, emailingizni tasdiqlang.")
       router.push("/auth/login")
     } catch (error: any) {
       toast.error(error.message)
@@ -56,18 +56,18 @@ export default function RegisterPage() {
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">
-            Create an account
+            Hisob yaratish
           </h1>
           <p className="text-sm text-muted-foreground">
-            Enter your details below to create your account
+            Ro'yxatdan o'tish uchun ma'lumotlaringizni kiriting
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">Ismingiz</Label>
             <Input
               id="name"
-              placeholder="John Doe"
+              placeholder="To'liq ismingiz"
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -78,14 +78,14 @@ export default function RegisterPage() {
             <Input
               id="email"
               type="email"
-              placeholder="john@example.com"
+              placeholder="example@email.uz"
               required
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Parol</Label>
             <Input
               id="password"
               type="password"
@@ -95,7 +95,7 @@ export default function RegisterPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <Label htmlFor="confirmPassword">Parolni tasdiqlang</Label>
             <Input
               id="confirmPassword"
               type="password"
@@ -105,13 +105,13 @@ export default function RegisterPage() {
             />
           </div>
           <Button className="w-full" type="submit" disabled={isLoading}>
-            {isLoading ? "Creating account..." : "Create account"}
+            {isLoading ? "Hisob yaratilmoqda..." : "Hisob yaratish"}
           </Button>
         </form>
         <p className="px-8 text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
+          Hisobingiz bormi?{" "}
           <Link href="/auth/login" className="underline underline-offset-4 hover:text-primary">
-            Sign in
+            Kirish
           </Link>
         </p>
       </div>

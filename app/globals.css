@@ -44,38 +44,38 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+    --popover: 224 71% 4%;
+    --popover-foreground: 213 31% 91%;
+    --primary: 263 70% 50%;
+    --primary-foreground: 210 20% 98%;
+    --secondary: 215 27% 11%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 215 27% 11%;
+    --muted-foreground: 217 24% 73%;
+    --accent: 263 70% 50%;
+    --accent-foreground: 210 20% 98%;
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 20% 98%;
+    --border: 215 27% 11%;
+    --input: 215 27% 11%;
+    --ring: 263 70% 50%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 224 71% 4%;
+    --sidebar-foreground: 213 31% 91%;
+    --sidebar-primary: 263 70% 50%;
+    --sidebar-primary-foreground: 210 20% 98%;
+    --sidebar-accent: 215 27% 11%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 215 27% 11%;
+    --sidebar-ring: 263 70% 50%;
   }
 }
 
@@ -126,8 +126,11 @@ body {
 }
 
 .dark .glass {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(2, 6, 23, 0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
 /* Slide animations for mobile product section */
@@ -170,4 +173,106 @@ body {
 .header-visible {
   transform: translateY(0);
   transition: transform 0.3s ease-in-out;
+}
+
+/* Enhanced Swiper styles */
+.swiper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.swiper-slide {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.swiper-slide-active {
+  opacity: 1;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.15);
+  width: 3rem !important;
+  height: 3rem !important;
+  border-radius: 50%;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+  margin: 0 1rem;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  font-size: 1.25rem !important;
+  font-weight: bold;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.1);
+}
+
+.swiper-pagination-bullet {
+  width: 2rem !important;
+  height: 0.25rem !important;
+  border-radius: 0.125rem !important;
+  background: rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.3s ease;
+  opacity: 0.5;
+}
+
+.swiper-pagination-bullet-active {
+  background: white !important;
+  width: 2.5rem !important;
+  opacity: 1;
+}
+
+/* Dark mode adjustments */
+.dark .swiper-button-next,
+.dark .swiper-button-prev {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.dark .swiper-button-next:hover,
+.dark .swiper-button-prev:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dark .swiper-pagination-bullet {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.dark .swiper-pagination-bullet-active {
+  background: var(--primary) !important;
+}
+
+/* Slide animations */
+.swiper-slide-active h1,
+.swiper-slide-active p,
+.swiper-slide-active .flex {
+  animation: slideUp 1s ease forwards;
+  opacity: 0;
+}
+
+.swiper-slide-active p {
+  animation-delay: 0.2s;
+}
+
+.swiper-slide-active .flex {
+  animation-delay: 0.4s;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }

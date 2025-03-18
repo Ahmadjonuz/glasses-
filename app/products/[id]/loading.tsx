@@ -22,10 +22,10 @@ export default function ProductLoading() {
             </Link>
             <nav className="flex gap-6">
               <Link href="/" className="text-sm font-medium text-neutral-500 hover:text-neutral-900">
-                Home
+                Bosh sahifa
               </Link>
               <Link href="/cart" className="text-sm font-medium text-neutral-500 hover:text-neutral-900">
-                Cart
+                Savatcha
               </Link>
             </nav>
           </div>

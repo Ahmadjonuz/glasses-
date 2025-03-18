@@ -29,7 +29,7 @@ export default function LoginPage() {
 
       if (error) throw error
 
-      toast.success("Login successful!")
+      toast.success("Muvaffaqiyatli kirdingiz!")
       router.push("/")
       router.refresh()
     } catch (error: any) {
@@ -44,10 +44,10 @@ export default function LoginPage() {
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">
-            Welcome back
+            Xush kelibsiz
           </h1>
           <p className="text-sm text-muted-foreground">
-            Enter your credentials to sign in
+            Tizimga kirish uchun ma'lumotlaringizni kiriting
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -56,14 +56,14 @@ export default function LoginPage() {
             <Input
               id="email"
               type="email"
-              placeholder="john@example.com"
+              placeholder="example@email.uz"
               required
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Parol</Label>
             <Input
               id="password"
               type="password"
@@ -73,13 +73,13 @@ export default function LoginPage() {
             />
           </div>
           <Button className="w-full" type="submit" disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign in"}
+            {isLoading ? "Kirish..." : "Kirish"}
           </Button>
         </form>
         <p className="px-8 text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
+          Hisobingiz yo'qmi?{" "}
           <Link href="/auth/register" className="underline underline-offset-4 hover:text-primary">
-            Sign up
+            Ro'yxatdan o'tish
           </Link>
         </p>
       </div>

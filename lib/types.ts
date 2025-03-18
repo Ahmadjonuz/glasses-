@@ -1,4 +1,4 @@
-import { ProductBrand, ProductCategory, ProductGender } from './models/Product'
+clearimport { ProductBrand, ProductCategory, ProductGender } from './models/Product'
 
 export interface Product {
   _id: string

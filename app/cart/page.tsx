@@ -6,9 +6,13 @@ import { ArrowLeft, Minus, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { useCart } from '@/contexts/cart-context'
+import { useAuth } from '@/contexts/auth-context'
 import { Card } from '@/components/ui/card'
+
 export default function CartPage() {
-  const { items, removeFromCart, updateQuantity, clearCart } = useCart()
+  const { items, removeFromCart, updateQuantity, clearCart, getCartTotal } = useCart()
+  const { user } = useAuth()
+  const total = getCartTotal()
 
   if (items.length === 0) {
     return (
@@ -16,15 +20,15 @@ export default function CartPage() {
         <div className="flex flex-col items-center justify-center space-y-4 py-12">
           <Image
             src="/assets/empty-shopping-bag.png"
-            alt="Empty cart"
+            alt="Bo'sh savat"
             width={200}
             height={200}
             className="opacity-50"
           />
-          <h2 className="text-2xl font-semibold">Your cart is empty</h2>
-          <p className="text-muted-foreground">Add some items to your cart to see them here.</p>
+          <h2 className="text-2xl font-semibold">Savatingiz bo'sh</h2>
+          <p className="text-muted-foreground">Mahsulotlarni savatga qo'shing.</p>
           <Button asChild>
-            <Link href="/products">Continue Shopping</Link>
+            <Link href="/products">Xarid qilishni davom ettirish</Link>
           </Button>
         </div>
       </div>
@@ -34,11 +38,11 @@ export default function CartPage() {
   return (
     <div className="container max-w-6xl px-4 py-8">
       <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">Shopping Cart</h1>
+        <h1 className="text-3xl font-bold">Savat</h1>
         <Button variant="ghost" asChild>
           <Link href="/products" className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
-            Continue Shopping
+            Xarid qilishni davom ettirish
           </Link>
         </Button>
       </div>
@@ -61,8 +65,8 @@ export default function CartPage() {
                     <div className="flex flex-1 flex-col justify-between">
                       <div className="space-y-1">
                         <h3 className="font-medium">{item.name}</h3>
-                        <p className="text-sm text-muted-foreground">Brand: {item.brand}</p>
-                        <p className="text-sm text-muted-foreground">Category: {item.category}</p>
+                        <p className="text-sm text-muted-foreground">Brend: {item.brand}</p>
+                        <p className="text-sm text-muted-foreground">Kategoriya: {item.category}</p>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -87,7 +91,7 @@ export default function CartPage() {
                           </Button>
                         </div>
                         <div className="flex items-center gap-4">
-                          <p className="font-medium">₹{(item.newPrice * item.cartQuantity).toFixed(2)}</p>
+                          <p className="font-medium">{(item.newPrice * item.cartQuantity).toLocaleString()} so'm</p>
                           <Button
                             variant="ghost"
                             size="icon"
@@ -106,7 +110,7 @@ export default function CartPage() {
             </div>
             <div className="mt-6 flex justify-end">
               <Button variant="destructive" onClick={clearCart}>
-                Clear Cart
+                Savatni tozalash
               </Button>
             </div>
           </Card>
@@ -114,26 +118,32 @@ export default function CartPage() {
 
         <div className="lg:col-span-1">
           <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
+            <h2 className="text-xl font-semibold mb-4">Buyurtma ma'lumoti</h2>
             <div className="space-y-4">
               <div className="flex justify-between">
-                <span>Items ({items.length})</span>
-                <span>₹{items.reduce((total: number, item: any) => total + item.newPrice * item.cartQuantity, 0).toFixed(2)}</span>
+                <span>Mahsulotlar ({items.length})</span>
+                <span>{total.toLocaleString()} so'm</span>
               </div>
               <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Shipping</span>
-                <span>Calculated at checkout</span>
+                <span>Yetkazib berish</span>
+                <span>Buyurtma berish vaqtida hisoblanadi</span>
               </div>
               <Separator />
               <div className="flex justify-between font-medium">
-                <span>Total</span>
-                <span>₹{items.reduce((total: number, item: any) => total + item.newPrice * item.cartQuantity, 0).toFixed(2)}</span>
+                <span>Jami</span>
+                <span>{total.toLocaleString()} so'm</span>
               </div>
-              <Button className="w-full" size="lg" asChild>
-                <Link href="/checkout">Proceed to Checkout</Link>
-              </Button>
+              {user ? (
+                <Button className="w-full" size="lg" asChild>
+                  <Link href="/checkout">Buyurtma berish</Link>
+                </Button>
+              ) : (
+                <Button className="w-full" size="lg" asChild>
+                  <Link href="/auth/login">Buyurtma berish uchun tizimga kiring</Link>
+                </Button>
+              )}
               <p className="text-xs text-center text-muted-foreground">
-                Shipping and taxes will be calculated at checkout
+                Yetkazib berish narxi buyurtma berish vaqtida hisoblanadi
               </p>
             </div>
           </Card>

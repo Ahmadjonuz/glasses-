@@ -22,28 +22,28 @@ export default function ProductNotFound() {
             </Link>
             <nav className="flex gap-6">
               <Link href="/" className="text-sm font-medium text-neutral-500 hover:text-neutral-900">
-                Home
+                Bosh sahifa
               </Link>
               <Link href="/cart" className="text-sm font-medium text-neutral-500 hover:text-neutral-900">
-                Cart
+                Savat
               </Link>
             </nav>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+      <main className="flex-1 flex items-center justify-center py-12">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-neutral-900">Product Not Found</h1>
+          <h1 className="text-3xl font-bold text-neutral-900">Mahsulot topilmadi</h1>
           <p className="mt-2 text-lg text-neutral-500">
-            Sorry, we couldn't find the product you're looking for.
+            Kechirasiz, siz qidirayotgan mahsulot topilmadi.
           </p>
           <div className="mt-6">
             <Link
               href="/"
               className="inline-flex items-center rounded-lg bg-neutral-900 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:ring-offset-2"
             >
-              Return to Home
+              Bosh sahifaga qaytish
             </Link>
           </div>
         </div>

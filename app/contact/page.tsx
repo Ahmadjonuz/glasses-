@@ -10,13 +10,14 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/components/ui/use-toast'
-import { MapPin, Phone, Mail, Clock } from 'lucide-react'
+import { MapPin, Phone, Mail, Clock, ArrowLeft } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 const formSchema = z.object({
-  name: z.string().min(2, 'Name is required'),
-  email: z.string().email('Invalid email address'),
-  subject: z.string().min(2, 'Subject is required'),
-  message: z.string().min(10, 'Message must be at least 10 characters'),
+  name: z.string().min(2, "Ism kiritish majburiy"),
+  email: z.string().email("Noto'gri email manzil"),
+  subject: z.string().min(2, "Mavzu kiritish majburiy"),
+  message: z.string().min(10, "Xabar kamida 10 ta belgidan iborat bo'lishi kerak"),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -24,55 +25,56 @@ type FormData = z.infer<typeof formSchema>
 const contactInfo = [
   {
     icon: MapPin,
-    title: 'Address',
-    details: ['123 Vision Street', 'Mumbai, Maharashtra 400001']
+    title: "Manzil",
+    details: ["Toshkent"]
   },
   {
     icon: Phone,
-    title: 'Phone',
-    details: ['+91 123-456-7890', '+91 098-765-4321']
+    title: "Telefon",
+    details: ["+998 91 142 88 77", "+998 90 009 88 69"]
   },
   {
     icon: Mail,
-    title: 'Email',
-    details: ['info@visionvogue.com', 'support@visionvogue.com']
+    title: "Email",
+    details: ["karimovahmadjon@gmail.com"]
   },
   {
     icon: Clock,
-    title: 'Hours',
-    details: ['Monday - Saturday: 10:00 AM - 8:00 PM', 'Sunday: Closed']
+    title: "Ish vaqti",
+    details: ["Dushanba - Shanba: 10:00 - 20:00", "Yakshanba: Dam olish kuni"]
   }
 ]
 
 export default function ContactPage() {
   const { toast } = useToast()
+  const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors }
-  } = useForm<FormData>({
-    resolver: zodResolver(formSchema)
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      subject: "",
+      message: ""
+    }
   })
 
+  const { register, handleSubmit, formState: { errors }, reset } = form
+
   const onSubmit = async (data: FormData) => {
+    setIsSubmitting(true)
     try {
-      setIsSubmitting(true)
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+      // Ma'lumotlarni backend'ga yuborish
+      console.log(data)
       toast({
-        title: "Message Sent!",
-        description: "We'll get back to you as soon as possible.",
+        title: "Xabar yuborildi",
+        description: "Tez orada siz bilan bog'lanamiz.",
       })
-      
       reset()
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: "Xatolik yuz berdi",
+        description: "Iltimos, qaytadan urinib ko'ring.",
         variant: "destructive",
       })
     } finally {
@@ -81,102 +83,125 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="container max-w-6xl px-4 py-16">
-      <div className="text-center mb-16">
-        <h1 className="text-4xl font-bold mb-4">Contact Us</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          Have a question or need assistance? We're here to help. Reach out to us through any of the following channels.
-        </p>
+    <div className="container py-12">
+      <div className="flex items-center gap-4 mb-8">
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={() => router.back()}
+          className="hover:text-primary transition-colors"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          <span className="sr-only">Orqaga</span>
+        </Button>
+        <h1 className="text-3xl font-bold">Biz bilan bog'lanish</h1>
       </div>
 
-      <div className="grid gap-12 lg:grid-cols-2">
-        {/* Contact Information */}
-        <div className="space-y-8">
-          <div className="grid gap-8 sm:grid-cols-2">
-            {contactInfo.map((info) => (
-              <Card key={info.title} className="p-6">
-                <info.icon className="h-8 w-8 mb-4 text-primary" />
-                <h3 className="text-lg font-semibold mb-2">{info.title}</h3>
-                {info.details.map((detail, index) => (
-                  <p key={index} className="text-muted-foreground">
-                    {detail}
-                  </p>
-                ))}
+      <div className="grid gap-8 lg:grid-cols-2">
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-3xl font-bold">Biz bilan bog'lanish</h1>
+            <p className="mt-2 text-muted-foreground">
+              Savollaringiz bormi? Biz bilan bog'laning va biz sizga yordam beramiz.
+            </p>
+          </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            {contactInfo.map((info, index) => (
+              <Card key={index} className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="rounded-full bg-primary/10 p-3">
+                    <info.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">{info.title}</h3>
+                    {info.details.map((detail, i) => (
+                      <p key={i} className="mt-1 text-sm text-muted-foreground">
+                        {detail}
+                      </p>
+                    ))}
+                  </div>
+                </div>
               </Card>
             ))}
           </div>
-
-          {/* Map */}
           <Card className="p-6">
-            <div className="aspect-video relative">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3771.803960914286!2d72.8270831!3d19.0759837!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTnCsDA0JzMzLjUiTiA3MsKwNDknMzcuNSJF!5e0!3m2!1sen!2sin!4v1635000000000!5m2!1sen!2sin"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
+            <div className="w-full h-[400px]">
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d191885.25298617416!2d69.2793667!3d41.28259745!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x38ae8b0cc379e9c3%3A0xa5a9323b4aa5cb98!2z0KLQsNGI0LrQtdC90YI!5e0!3m2!1sru!2s!4v1742167581381!5m2!1sru!2s" 
+                width="100%" 
+                height="100%" 
+                style={{ border: 0 }} 
+                allowFullScreen 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Toshkent xaritasi"
               />
             </div>
           </Card>
         </div>
 
-        {/* Contact Form */}
         <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-6">Send us a Message</h2>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+          <h2 className="text-2xl font-bold">Xabar yuborish</h2>
+          <p className="mt-2 text-muted-foreground">
+            Formani to'ldiring va biz siz bilan tez orada bog'lanamiz.
+          </p>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
+            <div>
+              <Label htmlFor="name">Ismingiz</Label>
               <Input
                 id="name"
-                placeholder="John Doe"
-                {...register('name')}
+                placeholder="To'liq ismingiz"
+                {...register("name")}
+                className={errors.name ? "border-destructive" : ""}
               />
               {errors.name && (
-                <p className="text-sm text-red-500">{errors.name.message}</p>
+                <p className="mt-1 text-sm text-destructive">{errors.name.message}</p>
               )}
             </div>
 
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="john@example.com"
-                {...register('email')}
+                placeholder="sizning@email.uz"
+                {...register("email")}
+                className={errors.email ? "border-destructive" : ""}
               />
               {errors.email && (
-                <p className="text-sm text-red-500">{errors.email.message}</p>
+                <p className="mt-1 text-sm text-destructive">{errors.email.message}</p>
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="subject">Subject</Label>
+            <div>
+              <Label htmlFor="subject">Mavzu</Label>
               <Input
                 id="subject"
-                placeholder="How can we help?"
-                {...register('subject')}
+                placeholder="Xabar mavzusi"
+                {...register("subject")}
+                className={errors.subject ? "border-destructive" : ""}
               />
               {errors.subject && (
-                <p className="text-sm text-red-500">{errors.subject.message}</p>
+                <p className="mt-1 text-sm text-destructive">{errors.subject.message}</p>
               )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
+            <div>
+              <Label htmlFor="message">Xabar</Label>
               <Textarea
                 id="message"
-                placeholder="Your message..."
-                className="min-h-[150px]"
-                {...register('message')}
+                placeholder="Xabaringizni yozing..."
+                {...register("message")}
+                className={errors.message ? "border-destructive" : ""}
               />
               {errors.message && (
-                <p className="text-sm text-red-500">{errors.message.message}</p>
+                <p className="mt-1 text-sm text-destructive">{errors.message.message}</p>
               )}
             </div>
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Sending...' : 'Send Message'}
+              {isSubmitting ? "Yuborilmoqda..." : "Yuborish"}
             </Button>
           </form>
         </Card>

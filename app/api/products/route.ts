@@ -3,10 +3,10 @@ import { products } from '@/lib/products'
 import { PRODUCT_CATEGORIES, PRODUCT_BRANDS, PRODUCT_GENDERS } from '@/lib/models/Product'
 
 const PRICE_RANGES = {
-  'under-1500': { min: 0, max: 1500 },
-  '1500-3000': { min: 1500, max: 3000 },
-  '3000-5000': { min: 3000, max: 5000 },
-  'above-5000': { min: 5000, max: Infinity }
+  'under-150000': { min: 0, max: 150000 },
+  '150000-300000': { min: 150000, max: 300000 },
+  '300000-500000': { min: 300000, max: 500000 },
+  'above-500000': { min: 500000, max: Infinity }
 } as const
 
 type PriceRangeKey = keyof typeof PRICE_RANGES
