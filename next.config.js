@@ -1,23 +1,39 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['hebbkx1anhila5yf.public.blob.vercel-storage.com', 'images.unsplash.com'],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '*.public.blob.vercel-storage.com',
-        pathname: '/**',
-      }
-    ]
+        hostname: '**.public.blob.vercel-storage.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
   },
+  experimental: {
+    optimizeCss: true,
+  },
+  // Handle build errors gracefully
   typescript: {
-    // During development we type check, but for builds we'll rely on IDE and pre-commit hooks
     ignoreBuildErrors: true,
   },
   eslint: {
-    // During development we lint, but for builds we'll rely on IDE and pre-commit hooks
     ignoreDuringBuilds: true,
-  }
+  },
+  // Optimize font loading
+  optimizeFonts: true,
+  // Handle MongoDB during build
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        mongodb: false,
+      }
+    }
+    return config
+  },
 }
 
 module.exports = nextConfig 

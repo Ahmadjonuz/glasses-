@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { products } from '@/lib/products'
 import { PRODUCT_CATEGORIES, PRODUCT_BRANDS, PRODUCT_GENDERS } from '@/lib/models/Product'
+import { clientPromise } from '@/lib/db'
 
 const PRICE_RANGES = {
   'under-150000': { min: 0, max: 150000 },
@@ -11,97 +12,44 @@ const PRICE_RANGES = {
 
 type PriceRangeKey = keyof typeof PRICE_RANGES
 
-export async function GET(request: NextRequest) {
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
+export async function GET(request: Request) {
   try {
-    const searchParams = request.nextUrl.searchParams
-    const categories = searchParams.getAll('category')
-    const brands = searchParams.getAll('brand')
-    const genders = searchParams.getAll('gender')
-    const priceRanges = searchParams.getAll('priceRange')
-    const featured = searchParams.get('featured')
+    const url = new URL(request.url)
+    const page = parseInt(url.searchParams.get('page') || '1')
+    const limit = parseInt(url.searchParams.get('limit') || '8')
+    const search = url.searchParams.get('search') || ''
+    const category = url.searchParams.get('category') || ''
 
-    console.log('Received filters:', {
-      categories,
-      brands,
-      genders,
-      priceRanges,
-      featured
-    })
-
-    // Filter products based on parameters
-    let filteredProducts = [...products]
-    
-    // Category filter
-    if (categories.length > 0) {
-      if (!categories.every(cat => PRODUCT_CATEGORIES.includes(cat as any))) {
-        console.log('Invalid category found:', categories)
-        return NextResponse.json(
-          { error: 'Invalid category' },
-          { status: 400 }
-        )
-      }
-      filteredProducts = filteredProducts.filter(product => 
-        categories.includes(product.category)
-      )
+    const client = await clientPromise
+    if (!client) {
+      return NextResponse.json({ products: [], total: 0 })
     }
 
-    // Brand filter
-    if (brands.length > 0) {
-      if (!brands.every(brand => PRODUCT_BRANDS.includes(brand as any))) {
-        console.log('Invalid brand found:', brands)
-        return NextResponse.json(
-          { error: 'Invalid brand' },
-          { status: 400 }
-        )
-      }
-      filteredProducts = filteredProducts.filter(product => 
-        brands.includes(product.brand)
-      )
+    const db = client.db('glasses_store')
+    const collection = db.collection('products')
+
+    const query: any = {}
+    if (search) {
+      query.name = { $regex: search, $options: 'i' }
+    }
+    if (category) {
+      query.category = category
     }
 
-    // Gender filter
-    if (genders.length > 0) {
-      if (!genders.every(gender => PRODUCT_GENDERS.includes(gender as any))) {
-        console.log('Invalid gender found:', genders)
-        return NextResponse.json(
-          { error: 'Invalid gender' },
-          { status: 400 }
-        )
-      }
-      filteredProducts = filteredProducts.filter(product => 
-        genders.includes(product.gender)
-      )
-    }
+    const skip = (page - 1) * limit
+    const [products, total] = await Promise.all([
+      collection.find(query).skip(skip).limit(limit).toArray(),
+      collection.countDocuments(query)
+    ])
 
-    // Price range filter
-    if (priceRanges.length > 0) {
-      filteredProducts = filteredProducts.filter(product => {
-        return priceRanges.some(range => {
-          const { min, max } = PRICE_RANGES[range as PriceRangeKey] || {}
-          if (!min && !max) return false
-          return product.newPrice >= min && product.newPrice <= (max === Infinity ? product.newPrice : max)
-        })
-      })
-    }
-
-    // Featured filter
-    if (featured === 'true') {
-      filteredProducts = filteredProducts.filter(product => product.trending)
-    }
-
-    console.log(`Found ${filteredProducts.length} products`)
-
-    return NextResponse.json(filteredProducts)
+    return NextResponse.json({ products, total })
   } catch (error) {
-    console.error('Failed to fetch products:', error)
-    if (error instanceof Error) {
-      return NextResponse.json(
-        { error: `Failed to fetch products: ${error.message}` },
-        { status: 500 }
-      )
-    }
+    console.error('Error fetching products:', error)
     return NextResponse.json(
-      { error: 'An unexpected error occurred while fetching products' },
+      { error: 'Failed to fetch products' },
       { status: 500 }
     )
   }
