@@ -1,25 +1,37 @@
 import { NextResponse } from 'next/server'
-import clientPromise from '@/lib/db'
+import { clientPromise } from '@/lib/db'
+import { ObjectId } from 'mongodb'
 
 export async function POST(request: Request) {
   try {
-    const order = await request.json()
     const client = await clientPromise
-    const db = client.db('glasses_store')
-    
-    const result = await db.collection('orders').insertOne({
-      ...order,
+    if (!client) {
+      console.warn('MongoDB connection not available')
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable' },
+        { status: 503 }
+      )
+    }
+
+    const data = await request.json()
+    const { userId, products, totalPrice } = data
+
+    const db = client.db()
+    const orders = db.collection('orders')
+
+    const result = await orders.insertOne({
+      userId: new ObjectId(userId),
+      products,
+      totalPrice,
       createdAt: new Date(),
-      updatedAt: new Date(),
+      status: 'pending'
     })
 
-    return NextResponse.json({ 
-      success: true, 
-      orderId: result.insertedId 
-    })
+    return NextResponse.json({ orderId: result.insertedId })
   } catch (error) {
+    console.error('Error in orders API:', error)
     return NextResponse.json(
-      { error: 'Failed to create order' },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
