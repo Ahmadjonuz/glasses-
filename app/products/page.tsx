@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { FilterSidebar } from '@/components/FilterSidebar'
 import { Product } from '@/lib/types'
-import { createClient } from '@supabase/supabase-js'
 import { MainHeader } from '@/components/MainHeader'
 import { ProductCard } from '@/app/components/ProductCard'
 import { ModeToggle } from "@/components/ui/mode-toggle"
@@ -21,11 +20,6 @@ interface Filters {
   genders: string[]
   priceRanges: string[]
 }
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-export const supabase = createClient(supabaseUrl, supabaseKey)
 
 export default function ProductsPage() {
   const router = useRouter()
