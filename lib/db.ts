@@ -11,25 +11,18 @@ const options = {
   socketTimeoutMS: 45000,
 }
 
-// Only initialize MongoDB client if we're not building
+// MongoDB clientni ishga tushirish uchun funksiya
 const initMongoClient = async (): Promise<MongoClient> => {
   if (!MONGODB_URI) {
     throw new Error('MongoDB URI not found. Database features will not be available.')
   }
 
-  try {
-    const client = new MongoClient(MONGODB_URI, options)
-    return await client.connect()
-  } catch (err) {
-    console.error('Error initializing MongoDB client:', err)
-    throw err
-  }
+  const client = new MongoClient(MONGODB_URI, options)
+  return client.connect()
 }
 
-// Initialize client promise
+// `clientPromise` faqat bir marta e'lon qilinadi va qiymati o‘zgarmaydi
 const clientPromise: Promise<MongoClient> = 
-  process.env.NODE_ENV === 'development'
-    ? global._mongoClientPromise ?? (global._mongoClientPromise = initMongoClient())
-    : initMongoClient()
+  global._mongoClientPromise ?? (global._mongoClientPromise = initMongoClient())
 
 export { clientPromise }
