@@ -18,13 +18,6 @@ export async function POST(request: Request) {
 
   try {
     const client = await clientPromise
-    if (!client) {
-      return NextResponse.json(
-        { error: 'Database connection failed' },
-        { status: 503 }
-      )
-    }
-
     const data = await request.json()
     const { userId, products, totalPrice } = data
 
@@ -35,7 +28,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const db = client.db()
+    const db = client.db('glasses_store')
     const orders = db.collection('orders')
 
     const result = await orders.insertOne({

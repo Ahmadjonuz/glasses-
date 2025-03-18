@@ -1,6 +1,10 @@
 import { MongoClient } from 'mongodb'
 import { MONGODB_URI } from './env'
 
+declare global {
+  var _mongoClientPromise: Promise<MongoClient> | undefined
+}
+
 const options = {
   maxPoolSize: 10,
   serverSelectionTimeoutMS: 5000,
@@ -8,27 +12,23 @@ const options = {
 }
 
 // Only initialize MongoDB client if we're not building
-const initMongoClient = () => {
+const initMongoClient = async (): Promise<MongoClient> => {
   if (!MONGODB_URI) {
-    console.warn('MongoDB URI not found. Database features will not be available.')
-    return Promise.resolve(null)
+    throw new Error('MongoDB URI not found. Database features will not be available.')
   }
 
   try {
     const client = new MongoClient(MONGODB_URI, options)
-    return client.connect()
-      .catch(err => {
-        console.error('Failed to connect to MongoDB:', err)
-        return null
-      })
+    return await client.connect()
   } catch (err) {
     console.error('Error initializing MongoDB client:', err)
-    return Promise.resolve(null)
+    throw err
   }
 }
 
 // Initialize client promise
-let clientPromise: Promise<MongoClient | null>
+let clientPromise: Promise<MongoClient>
+
 if (process.env.NODE_ENV === 'development') {
   // In development, use a global variable so the value
   // is preserved across module reloads caused by HMR
@@ -42,4 +42,3 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 export { clientPromise } 
-export const clientPromise = global._mongoClientPromise 
