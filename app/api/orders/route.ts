@@ -1,20 +1,39 @@
 import { NextResponse } from 'next/server'
 import { clientPromise } from '@/lib/db'
 import { ObjectId } from 'mongodb'
+import { MONGODB_URI } from '@/lib/env'
+
+// This prevents build-time errors by checking the environment during runtime only
+if (process.env.NODE_ENV === 'development' && !MONGODB_URI) {
+  console.warn('MongoDB URI is required for the orders API to function properly')
+}
 
 export async function POST(request: Request) {
+  if (!MONGODB_URI) {
+    return NextResponse.json(
+      { error: 'Database configuration is not available' },
+      { status: 503 }
+    )
+  }
+
   try {
     const client = await clientPromise
     if (!client) {
-      console.warn('MongoDB connection not available')
       return NextResponse.json(
-        { error: 'Service temporarily unavailable' },
+        { error: 'Database connection failed' },
         { status: 503 }
       )
     }
 
     const data = await request.json()
     const { userId, products, totalPrice } = data
+
+    if (!userId || !products || !totalPrice) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      )
+    }
 
     const db = client.db()
     const orders = db.collection('orders')
@@ -27,7 +46,10 @@ export async function POST(request: Request) {
       status: 'pending'
     })
 
-    return NextResponse.json({ orderId: result.insertedId })
+    return NextResponse.json({ 
+      success: true,
+      orderId: result.insertedId.toString() 
+    })
   } catch (error) {
     console.error('Error in orders API:', error)
     return NextResponse.json(
