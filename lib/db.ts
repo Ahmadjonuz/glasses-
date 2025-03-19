@@ -49,4 +49,5 @@ if (!MONGODB_URI || isBuildTime) {
   }
 }
 
+export { clientPromise }
 export default clientPromise

@@ -18,6 +18,14 @@ export default function AccountPage() {
     name: "",
     email: "",
   })
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+    if (!user && typeof window !== 'undefined') {
+      router.push('/auth/login')
+    }
+  }, [user, router])
 
   useEffect(() => {
     if (user) {
@@ -60,8 +68,7 @@ export default function AccountPage() {
     }
   }
 
-  if (!user) {
-    router.push("/auth/login")
+  if (!mounted || !user) {
     return null
   }
 

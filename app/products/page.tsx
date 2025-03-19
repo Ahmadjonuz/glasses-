@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { FilterSidebar } from '@/components/FilterSidebar'
 import { Product } from '@/lib/types'
@@ -11,6 +11,7 @@ import { ShoppingCart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import Link from "next/link"
 import { MobileNav } from "@/app/components/MobileNav"
+import { ProductSkeletonGrid } from "../components/ProductSkeleton"
 
 type FilterType = 'categories' | 'brands' | 'genders' | 'priceRanges'
 
@@ -19,6 +20,30 @@ interface Filters {
   brands: string[]
   genders: string[]
   priceRanges: string[]
+}
+
+function ProductList() {
+  const searchParams = useSearchParams()
+  const search = searchParams.get("search")?.toLowerCase() || ""
+  const category = searchParams.get("category") || ""
+
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(search) ||
+                         product.description.toLowerCase().includes(search)
+    const matchesCategory = !category || product.category === category
+    return matchesSearch && matchesCategory
+  })
+
+  return (
+    <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
+      {filteredProducts.map((product) => (
+        <ProductCard
+          key={product._id}
+          product={product}
+        />
+      ))}
+    </div>
+  )
 }
 
 export default function ProductsPage() {
@@ -101,25 +126,9 @@ export default function ProductsPage() {
                 onClose={() => setShowMobileFilters(false)}
               />
               <div className="flex-1">
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {isLoading ? (
-                    <div>Yuklanmoqda...</div>
-                  ) : (
-                    products.map((product) => (
-                      <ProductCard key={product._id} product={product} />
-                    ))
-                  )}
-                  {isLoading ? (
-                    <div>Yuklanmoqda...</div>
-                  ) : products.length === 0 ? (
-                    <div className="text-center col-span-full py-12">
-                      <h3 className="text-lg font-semibold">Mahsulotlar topilmadi</h3>
-                      <p className="text-muted-foreground mt-2">
-                        Boshqa filtrlash parametrlarini tanlashga harakat qiling.
-                      </p>
-                    </div>
-                  ) : null}
-                </div>
+                <Suspense fallback={<ProductSkeletonGrid />}>
+                  <ProductList />
+                </Suspense>
               </div>
             </div>
           </div>
