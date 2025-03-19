@@ -33,6 +33,10 @@ const nextConfig = {
   },
   // Configure static generation
   output: 'standalone',
+  // Disable static page generation optimization
+  experimental: {
+    serverActions: true,
+  }
 }
 
 module.exports = nextConfig 

@@ -17,8 +17,6 @@ import { useAuth } from "@/contexts/auth-context"
 import { HeroSlider } from "./components/HeroSlider"
 import { MobileNav } from "./components/MobileNav"
 
-export const dynamic = 'force-dynamic'
-
 export default function Home() {
   const [headerVisible, setHeaderVisible] = useState(true)
   const [showProducts, setShowProducts] = useState(false)
@@ -36,10 +34,16 @@ export default function Home() {
   const { user } = useAuth()
 
   useEffect(() => {
-    setMounted(true)
-    setProducts(defaultProducts)
-    setLoading(false)
+    if (typeof window !== 'undefined') {
+      setMounted(true)
+      setProducts(defaultProducts)
+      setLoading(false)
+    }
   }, [])
+
+  if (!mounted) {
+    return <ProductSkeletonGrid />
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -139,7 +143,7 @@ export default function Home() {
 
       <main className="flex-1">
         <HeroSlider />
-        <section className="w-full py-12 md:py-24 lg:py-32">
+        <section className="w-full py-12 md:py-24 lg:py-32" ref={productSectionRef}>
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center justify-center space-y-4 text-center">
               <div className="space-y-2">
