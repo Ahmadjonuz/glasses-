@@ -24,9 +24,30 @@ interface Filters {
 
 interface ProductListProps {
   products: Product[]
+  isLoading: boolean
 }
 
-function ProductList({ products }: ProductListProps) {
+// Separate component for search params handling
+function SearchParamsHandler({ children }: { children: React.ReactNode }) {
+  const searchParams = useSearchParams()
+  return <>{children}</>
+}
+
+function ProductList({ products, isLoading }: ProductListProps) {
+  if (isLoading) {
+    return <ProductSkeletonGrid />
+  }
+
+  return (
+    <Suspense fallback={<ProductSkeletonGrid />}>
+      <SearchParamsHandler>
+        <ProductListContent products={products} />
+      </SearchParamsHandler>
+    </Suspense>
+  )
+}
+
+function ProductListContent({ products }: { products: Product[] }) {
   const searchParams = useSearchParams()
   const search = searchParams.get("search")?.toLowerCase() || ""
   const category = searchParams.get("category") || ""
@@ -61,20 +82,35 @@ function ProductList({ products }: ProductListProps) {
   )
 }
 
+function FiltersWrapper({ children }: { children: React.ReactNode }) {
+  const searchParams = useSearchParams()
+  return <>{children}</>
+}
+
 export default function ProductsPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
   const { items } = useCart()
 
   const [selectedFilters, setSelectedFilters] = useState<Filters>({
-    categories: searchParams.getAll('category'),
-    brands: searchParams.getAll('brand'),
-    genders: searchParams.getAll('gender'),
-    priceRanges: searchParams.getAll('priceRange'),
+    categories: [],
+    brands: [],
+    genders: [],
+    priceRanges: [],
   })
+
+  useEffect(() => {
+    // Initialize filters from URL on mount
+    const searchParams = new URLSearchParams(window.location.search)
+    setSelectedFilters({
+      categories: searchParams.getAll('category'),
+      brands: searchParams.getAll('brand'),
+      genders: searchParams.getAll('gender'),
+      priceRanges: searchParams.getAll('priceRange'),
+    })
+  }, [])
 
   const handleFilterChange = (type: FilterType, value: string) => {
     setSelectedFilters(prev => {
@@ -134,20 +170,18 @@ export default function ProductsPage() {
         <section className="w-full py-12">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col gap-4 md:flex-row">
-              <FilterSidebar
-                selectedFilters={selectedFilters}
-                onFilterChange={handleFilterChange}
-                isOpen={showMobileFilters}
-                onClose={() => setShowMobileFilters(false)}
-              />
+              <Suspense fallback={<div>Loading filters...</div>}>
+                <FiltersWrapper>
+                  <FilterSidebar
+                    selectedFilters={selectedFilters}
+                    onFilterChange={handleFilterChange}
+                    isOpen={showMobileFilters}
+                    onClose={() => setShowMobileFilters(false)}
+                  />
+                </FiltersWrapper>
+              </Suspense>
               <div className="flex-1">
-                <Suspense fallback={<ProductSkeletonGrid />}>
-                  {isLoading ? (
-                    <ProductSkeletonGrid />
-                  ) : (
-                    <ProductList products={products} />
-                  )}
-                </Suspense>
+                <ProductList products={products} isLoading={isLoading} />
               </div>
             </div>
           </div>
