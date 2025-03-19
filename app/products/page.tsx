@@ -22,7 +22,11 @@ interface Filters {
   priceRanges: string[]
 }
 
-function ProductList() {
+interface ProductListProps {
+  products: Product[]
+}
+
+function ProductList({ products }: ProductListProps) {
   const searchParams = useSearchParams()
   const search = searchParams.get("search")?.toLowerCase() || ""
   const category = searchParams.get("category") || ""
@@ -33,6 +37,17 @@ function ProductList() {
     const matchesCategory = !category || product.category === category
     return matchesSearch && matchesCategory
   })
+
+  if (filteredProducts.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <h3 className="text-lg font-semibold">Mahsulotlar topilmadi</h3>
+        <p className="text-muted-foreground mt-2">
+          Boshqa filtrlash parametrlarini tanlashga harakat qiling.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
@@ -74,7 +89,7 @@ export default function ProductsPage() {
       const params = new URLSearchParams()
       Object.entries(newFilters).forEach(([key, values]) => {
         values.forEach((value: string) => {
-          params.append(key.slice(0, -1), value) // Remove 's' from key (categories -> category)
+          params.append(key.slice(0, -1), value)
         })
       })
       
@@ -127,7 +142,11 @@ export default function ProductsPage() {
               />
               <div className="flex-1">
                 <Suspense fallback={<ProductSkeletonGrid />}>
-                  <ProductList />
+                  {isLoading ? (
+                    <ProductSkeletonGrid />
+                  ) : (
+                    <ProductList products={products} />
+                  )}
                 </Suspense>
               </div>
             </div>
