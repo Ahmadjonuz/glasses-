@@ -1,5 +1,3 @@
-export const dynamic = 'force-dynamic'
-
 "use client"
 
 import Link from "next/link"
@@ -18,6 +16,8 @@ import { ProductSkeletonGrid } from "./components/ProductSkeleton"
 import { useAuth } from "@/contexts/auth-context"
 import { HeroSlider } from "./components/HeroSlider"
 import { MobileNav } from "./components/MobileNav"
+
+export const dynamic = 'force-dynamic'
 
 export default function Home() {
   const [headerVisible, setHeaderVisible] = useState(true)

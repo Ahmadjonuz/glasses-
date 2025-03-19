@@ -12,9 +12,6 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    optimizeCss: true,
-  },
   // Handle build errors gracefully
   typescript: {
     ignoreBuildErrors: true,
@@ -36,9 +33,6 @@ const nextConfig = {
   },
   // Configure static generation
   output: 'standalone',
-  experimental: {
-    missingSuspenseWithCSRError: false,
-  },
 }
 
 module.exports = nextConfig 
