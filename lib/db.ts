@@ -1,53 +1,53 @@
 import { MongoClient } from 'mongodb'
 
-const MONGODB_URI = process.env.MONGODB_URI
-const isDevelopment = process.env.NODE_ENV === 'development'
-const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build'
-
-if (!MONGODB_URI) {
-  if (isDevelopment) {
-    console.warn('MongoDB URI not found. Using mock client.')
-  }
+if (!process.env.MONGODB_URI) {
+  throw new Error('Please add your Mongo URI to .env.local')
 }
 
+const uri = process.env.MONGODB_URI
 const options = {
+  ssl: true,
+  tls: true,
   maxPoolSize: 10,
   serverSelectionTimeoutMS: 5000,
   socketTimeoutMS: 45000,
-  connectTimeoutMS: 10000,
-  retryWrites: true,
-} as const
+}
 
 let client: MongoClient
 let clientPromise: Promise<MongoClient>
 
-const mockClient = {
-  connect: () => Promise.resolve(mockClient),
-  db: () => ({
-    collection: () => ({
-      find: () => ({ toArray: () => Promise.resolve([]) }),
-      findOne: () => Promise.resolve(null),
-      insertOne: () => Promise.resolve({ insertedId: 'mock-id' }),
-      updateOne: () => Promise.resolve({ modifiedCount: 1 }),
-      deleteOne: () => Promise.resolve({ deletedCount: 1 }),
-      aggregate: () => ({ toArray: () => Promise.resolve([]) }),
-    }),
-  }),
-} as unknown as MongoClient
+if (process.env.NODE_ENV === 'development') {
+  // In development mode, use a global variable so that the value
+  // is preserved across module reloads caused by HMR (Hot Module Replacement).
+  let globalWithMongo = global as typeof globalThis & {
+    _mongoClientPromise?: Promise<MongoClient>
+  }
 
-if (!MONGODB_URI || isBuildTime) {
-  client = mockClient
-  clientPromise = Promise.resolve(mockClient)
+  if (!globalWithMongo._mongoClientPromise) {
+    client = new MongoClient(uri, options)
+    globalWithMongo._mongoClientPromise = client.connect()
+  }
+  clientPromise = globalWithMongo._mongoClientPromise
 } else {
+  // In production mode, it's best to not use a global variable.
+  client = new MongoClient(uri, options)
+  clientPromise = client.connect()
+}
+
+export async function connectToDatabase() {
   try {
-    client = new MongoClient(MONGODB_URI, options)
-    clientPromise = client.connect()
+    const client = await clientPromise
+    // Test the connection
+    await client.db().command({ ping: 1 })
+    return { client, db: client.db() }
   } catch (error) {
-    console.error('Failed to initialize MongoDB client:', error)
-    client = mockClient
-    clientPromise = Promise.resolve(mockClient)
+    console.error('MongoDB connection error:', error)
+    // If the connection fails, try to create a new one
+    client = new MongoClient(uri, options)
+    clientPromise = client.connect()
+    const newClient = await clientPromise
+    return { client: newClient, db: newClient.db() }
   }
 }
 
-export { clientPromise }
 export default clientPromise
