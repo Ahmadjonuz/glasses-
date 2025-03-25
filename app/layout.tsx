@@ -2,10 +2,9 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { CartProvider } from '@/contexts/cart-context'
-import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from "@/contexts/auth-context"
 import { ThemeProvider } from '@/components/theme-provider'
-import { Toaster as SonnerToaster } from '@/components/ui/sonner'
+import { Toaster } from 'react-hot-toast'
 import { LikesProvider } from '@/contexts/likes-context'
 import { OrdersProvider } from '@/contexts/orders-context'
 
@@ -34,8 +33,7 @@ export default function RootLayout({
                       {children}
                     </main>
                   </div>
-                  <Toaster />
-                  <SonnerToaster />
+                  <Toaster position="top-center" />
                 </LikesProvider>
               </OrdersProvider>
             </CartProvider>

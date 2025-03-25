@@ -11,10 +11,10 @@ import { useLikes } from '@/contexts/likes-context'
 import { useCart } from '@/contexts/cart-context'
 import { useAuth } from '@/contexts/auth-context'
 import { Product } from '@/lib/types'
-import { toast } from "sonner"
+import toast from 'react-hot-toast'
 
 export default function LikesPage() {
-  const { likedItems, removeFromLikes } = useLikes()
+  const { likedItems, removeFromLikes, clearLikes } = useLikes()
   const { addItem } = useCart()
   const { user } = useAuth()
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())

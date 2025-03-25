@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { toast } from "sonner"
+import toast from 'react-hot-toast'
 import { Loader2 } from "lucide-react"
 
 const formSchema = z.object({

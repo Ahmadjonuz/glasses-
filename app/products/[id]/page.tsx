@@ -14,7 +14,7 @@ import type { Product } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { ProductSlider } from '@/app/components/ProductSlider'
 import { useToast } from '@/components/ui/use-toast'
-import { toast } from "sonner"
+import toast from 'react-hot-toast'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 

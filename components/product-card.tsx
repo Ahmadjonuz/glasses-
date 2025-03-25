@@ -9,7 +9,7 @@ import { ShoppingCart, Heart } from "lucide-react"
 import { useCart } from "@/contexts/cart-context"
 import { useLikes } from "@/contexts/likes-context"
 import { useAuth } from "@/contexts/auth-context"
-import { toast } from "sonner"
+import toast from 'react-hot-toast'
 
 interface Product {
   _id: string

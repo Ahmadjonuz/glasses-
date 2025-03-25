@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator'
 import { useCart } from '@/contexts/cart-context'
 import { useAuth } from '@/contexts/auth-context'
 import { Card } from '@/components/ui/card'
-import { toast } from 'sonner'
+import toast from 'react-hot-toast'
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, clearCart, totalPrice } = useCart()
