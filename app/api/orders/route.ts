@@ -1,53 +1,74 @@
 import { NextResponse } from 'next/server'
-import { clientPromise } from '@/lib/db'
-import { ObjectId } from 'mongodb'
-import { MONGODB_URI } from '@/lib/env'
+import { auth } from '@clerk/nextjs'
+import { db } from '@/lib/db'
 
-// This prevents build-time errors by checking the environment during runtime only
-if (process.env.NODE_ENV === 'development' && !MONGODB_URI) {
-  console.warn('MongoDB URI is required for the orders API to function properly')
-}
+// Static storage for orders
+let orders: any[] = []
 
 export async function POST(request: Request) {
-  if (!MONGODB_URI) {
-    return NextResponse.json(
-      { error: 'Database configuration is not available' },
-      { status: 503 }
-    )
-  }
-
   try {
-    const client = await clientPromise
     const data = await request.json()
-    const { userId, products, totalPrice } = data
+    const { name, phone, address, productId, productName, productPrice } = data
 
-    if (!userId || !products || !totalPrice) {
+    if (!name || !phone || !address || !productId || !productName || !productPrice) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: 'Barcha maydonlarni to\'ldiring' },
         { status: 400 }
       )
     }
 
-    const db = client.db('glasses_store')
-    const orders = db.collection('orders')
-
-    const result = await orders.insertOne({
-      userId: new ObjectId(userId),
-      products,
-      totalPrice,
-      createdAt: new Date(),
+    // Create new order
+    const newOrder = {
+      id: Date.now().toString(),
+      name,
+      phone,
+      address,
+      productId,
+      productName,
+      productPrice,
+      createdAt: new Date().toISOString(),
       status: 'pending'
-    })
+    }
+
+    // Add to static storage
+    orders.push(newOrder)
 
     return NextResponse.json({ 
       success: true,
-      orderId: result.insertedId.toString() 
+      orderId: newOrder.id
     })
   } catch (error) {
-    console.error('Error in orders API:', error)
+    console.error('Buyurtmalar API xatosi:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Xatolik yuz berdi' },
       { status: 500 }
     )
+  }
+}
+
+export async function GET() {
+  try {
+    const { userId } = auth()
+    
+    if (!userId) {
+      return new NextResponse("Ruxsat berilmagan", { status: 401 })
+    }
+
+    const orders = await db.order.findMany({
+      where: {
+        userId
+      },
+      include: {
+        items: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    })
+
+    return NextResponse.json(orders)
+  } catch (error) {
+    console.error('[BUYURTMALAR_OLISH]', error)
+    return new NextResponse("Ichki xatolik", { status: 500 })
   }
 } 

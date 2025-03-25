@@ -12,6 +12,9 @@ const nextConfig = {
       },
     ],
   },
+  experimental: {
+    optimizeCss: true,
+  },
   // Handle build errors gracefully
   typescript: {
     ignoreBuildErrors: true,
@@ -21,22 +24,6 @@ const nextConfig = {
   },
   // Optimize font loading
   optimizeFonts: true,
-  // Handle MongoDB during build
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        mongodb: false,
-      }
-    }
-    return config
-  },
-  // Configure static generation
-  output: 'standalone',
-  // Disable static page generation optimization
-  experimental: {
-    serverActions: true,
-  }
 }
 
 module.exports = nextConfig 

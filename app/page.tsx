@@ -9,7 +9,7 @@ import { ModeToggle } from "@/components/ui/mode-toggle"
 import { useEffect, useState } from "react"
 import { useInView } from "react-intersection-observer"
 import { Product } from "@/lib/types"
-import { ProductCard } from "./components/ProductCard"
+import { ProductCard } from "@/components/product-card"
 import { useCart } from "@/contexts/cart-context"
 import { useLikes } from "@/contexts/likes-context"
 import { ProductSkeletonGrid } from "./components/ProductSkeleton"
@@ -155,7 +155,7 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <div className="mx-auto grid max-w-5xl grid-cols-2 gap-4 sm:gap-6 py-8 md:grid-cols-3 lg:grid-cols-4">
+            <div className="mx-auto grid max-w-6xl grid-cols gap-4 sm:gap-6 py-8 md:grid-cols-3 lg:grid-cols-4">
               {loading ? (
                 <ProductSkeletonGrid />
               ) : (

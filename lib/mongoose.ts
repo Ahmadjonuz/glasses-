@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { MONGODB_URI } from './env'
+import { MONGODB_URI } from '@/lib/env'
 
 interface GlobalMongoose {
   conn: typeof mongoose | null

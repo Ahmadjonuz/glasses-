@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { Heart, ArrowLeft } from 'lucide-react'
+import { notFound, useParams } from 'next/navigation'
+import { Heart, ArrowLeft, ShoppingCart } from 'lucide-react'
 import { products } from '@/lib/products'
 import { FallbackImage } from '@/app/components/FallbackImage'
 import { useCart } from '@/contexts/cart-context'
@@ -14,21 +14,41 @@ import type { Product } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { ProductSlider } from '@/app/components/ProductSlider'
 import { useToast } from '@/components/ui/use-toast'
+import { toast } from "sonner"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
-export default function ProductPage({
-  params,
-}: {
-  params: { id: string }
-}) {
-  const [quantity, setQuantity] = useState(1)
-  const { addToCart } = useCart()
+export default function ProductPage() {
+  const params = useParams()
+  const { addItem } = useCart()
   const { addToLikes, removeFromLikes, isLiked } = useLikes()
   const { user } = useAuth()
   const { toast } = useToast()
-  const product = (products || []).find((p) => p._id === params.id) as Product
+  const [product, setProduct] = useState<Product | null>(null)
+  const [quantity, setQuantity] = useState(1)
+
+  useEffect(() => {
+    const foundProduct = products.find(p => p._id === params.id)
+    if (foundProduct) {
+      setProduct(foundProduct)
+    }
+  }, [params.id])
 
   if (!product) {
-    notFound()
+    return (
+      <div className="container py-12">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Mahsulot topilmadi</h1>
+          <p className="text-muted-foreground mt-2">Bunday mahsulot mavjud emas.</p>
+          <Link href="/products">
+            <Button className="mt-4">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Mahsulotlar ro'yxatiga qaytish
+            </Button>
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   // Get similar products (same category, excluding current product)
@@ -45,7 +65,14 @@ export default function ProductPage({
       })
       return
     }
-    addToCart(product, quantity)
+    addItem({
+      id: product._id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity: quantity
+    })
+    toast.success("Mahsulot savatga qo'shildi")
   }
 
   const handleToggleLike = () => {
@@ -68,16 +95,12 @@ export default function ProductPage({
     <div className="min-h-screen bg-background">
       <main className="container mx-auto px-4 py-8">
         {/* Back Button */}
-        <Button
-          variant="ghost"
-          className="mb-8 hover:scale-105 transition-transform"
-          asChild
-        >
-          <Link href="/products" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Orqaga
-          </Link>
-        </Button>
+        <Link href="/products">
+          <Button variant="ghost" className="mb-8">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Mahsulotlar ro'yxatiga qaytish
+          </Button>
+        </Link>
 
         <div className="grid gap-8 md:grid-cols-2">
           {/* Product Image */}
@@ -148,6 +171,7 @@ export default function ProductPage({
                     className="w-full"
                     onClick={handleAddToCart}
                   >
+                    <ShoppingCart className="mr-2 h-4 w-4" />
                     Savatga qo'shish
                   </Button>
                 </>

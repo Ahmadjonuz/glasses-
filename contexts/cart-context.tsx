@@ -1,118 +1,94 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect } from 'react'
-import { Product } from '@/lib/types'
-import { useToast } from "@/components/ui/use-toast"
+import { createContext, useContext, useEffect, useState } from "react"
 
-interface CartItem extends Product {
-  cartQuantity: number
+interface CartItem {
+  id: string
+  name: string
+  price: number
+  image: string
+  quantity: number
 }
 
 interface CartContextType {
   items: CartItem[]
-  addToCart: (product: Product, quantity?: number) => void
-  removeFromCart: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
+  addItem: (item: CartItem) => void
+  removeItem: (id: string) => void
+  updateQuantity: (id: string, quantity: number) => void
   clearCart: () => void
+  totalItems: number
+  totalPrice: number
   getCartTotal: () => number
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
-const CART_STORAGE_KEY = 'visionvogue-cart'
-
-function loadCartFromStorage(): CartItem[] {
-  if (typeof window === 'undefined') return []
-  try {
-    const savedCart = localStorage.getItem(CART_STORAGE_KEY)
-    return savedCart ? JSON.parse(savedCart) : []
-  } catch (error) {
-    console.error('Error loading cart from storage:', error)
-    return []
-  }
-}
-
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>(loadCartFromStorage)
-  const { toast } = useToast()
+  const [items, setItems] = useState<CartItem[]>([])
 
+  // Load cart from localStorage on mount
   useEffect(() => {
-    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items))
+    const savedCart = localStorage.getItem('cart')
+    if (savedCart) {
+      setItems(JSON.parse(savedCart))
+    }
+  }, [])
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(items))
   }, [items])
 
-  const addToCart = (product: Product, quantity = 1) => {
+  const addItem = (item: CartItem) => {
     setItems(currentItems => {
-      const existingItem = currentItems.find(item => item._id === product._id)
-      
+      const existingItem = currentItems.find(i => i.id === item.id)
       if (existingItem) {
-        return currentItems.map(item =>
-          item._id === product._id
-            ? { ...item, cartQuantity: item.cartQuantity + quantity }
-            : item
+        return currentItems.map(i =>
+          i.id === item.id
+            ? { ...i, quantity: i.quantity + item.quantity }
+            : i
         )
       }
-
-      return [...currentItems, { ...product, cartQuantity: quantity }]
-    })
-    toast({
-      title: "Added to Cart",
-      description: `${product.name} added to your cart`,
-      duration: 2000,
+      return [...currentItems, item]
     })
   }
 
-  const removeFromCart = (productId: string) => {
-    const itemToRemove = items.find(item => item._id === productId)
-    setItems(currentItems => currentItems.filter(item => item._id !== productId))
-    if (itemToRemove) {
-      toast({
-        title: "Removed from Cart",
-        description: `${itemToRemove.name} removed from your cart`,
-        duration: 2000,
-      })
-    }
+  const removeItem = (id: string) => {
+    setItems(currentItems => currentItems.filter(item => item.id !== id))
   }
 
-  const updateQuantity = (productId: string, quantity: number) => {
-    const itemToUpdate = items.find(item => item._id === productId)
+  const updateQuantity = (id: string, quantity: number) => {
     setItems(currentItems =>
       currentItems.map(item =>
-        item._id === productId
-          ? { ...item, cartQuantity: quantity }
-          : item
+        item.id === id ? { ...item, quantity } : item
       )
     )
-    if (itemToUpdate) {
-      toast({
-        title: "Cart Updated",
-        description: `${itemToUpdate.name} quantity updated to ${quantity}`,
-        duration: 2000,
-      })
-    }
   }
 
   const clearCart = () => {
     setItems([])
-    toast({
-      title: "Cart Cleared",
-      description: "All items have been removed from your cart",
-      duration: 2000,
-    })
   }
 
   const getCartTotal = () => {
-    return items.reduce((total, item) => total + (item.newPrice * item.cartQuantity), 0)
+    return items.reduce((total, item) => total + (item.price * item.quantity), 0)
   }
 
+  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
+  const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+
   return (
-    <CartContext.Provider value={{
-      items,
-      addToCart,
-      removeFromCart,
-      updateQuantity,
-      clearCart,
-      getCartTotal
-    }}>
+    <CartContext.Provider
+      value={{
+        items,
+        addItem,
+        removeItem,
+        updateQuantity,
+        clearCart,
+        totalItems,
+        totalPrice,
+        getCartTotal,
+      }}
+    >
       {children}
     </CartContext.Provider>
   )

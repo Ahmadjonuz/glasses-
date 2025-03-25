@@ -1,4 +1,4 @@
-import sun3 from "@/assets/sunglasses/sun3.png";
+  import sun3 from "@/assets/sunglasses/sun3.png";
 import sun4 from "@/assets/sunglasses/sun4.png";
 import sun5 from "@/assets/sunglasses/sun5.png";
 import sun7 from "@/assets/sunglasses/sun7.png";

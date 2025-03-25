@@ -8,11 +8,11 @@ import { Separator } from '@/components/ui/separator'
 import { useCart } from '@/contexts/cart-context'
 import { useAuth } from '@/contexts/auth-context'
 import { Card } from '@/components/ui/card'
+import { toast } from 'sonner'
 
 export default function CartPage() {
-  const { items, removeFromCart, updateQuantity, clearCart, getCartTotal } = useCart()
+  const { items, removeItem, updateQuantity, clearCart, totalPrice } = useCart()
   const { user } = useAuth()
-  const total = getCartTotal()
 
   if (items.length === 0) {
     return (
@@ -35,6 +35,20 @@ export default function CartPage() {
     )
   }
 
+  const handleUpdateQuantity = (id: string, newQuantity: number) => {
+    if (newQuantity < 1) {
+      removeItem(id)
+      toast.success("Mahsulot savatdan olib tashlandi")
+      return
+    }
+    updateQuantity(id, newQuantity)
+  }
+
+  const handleClearCart = () => {
+    clearCart()
+    toast.success("Savat tozalandi")
+  }
+
   return (
     <div className="container max-w-6xl px-4 py-8">
       <div className="flex items-center justify-between mb-8">
@@ -52,7 +66,7 @@ export default function CartPage() {
           <Card className="p-6">
             <div className="space-y-6">
               {items.map((item) => (
-                <div key={item._id}>
+                <div key={item.id}>
                   <div className="flex gap-4">
                     <div className="relative h-24 w-24 overflow-hidden rounded-lg border">
                       <Image
@@ -74,29 +88,29 @@ export default function CartPage() {
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => updateQuantity(item._id, item.cartQuantity - 1)}
-                            disabled={item.cartQuantity <= 1}
+                            onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
                           >
                             <Minus className="h-4 w-4" />
                           </Button>
-                          <span className="w-8 text-center">{item.cartQuantity}</span>
+                          <span className="w-8 text-center">{item.quantity}</span>
                           <Button
                             variant="outline"
                             size="icon"
                             className="h-8 w-8"
-                            onClick={() => updateQuantity(item._id, item.cartQuantity + 1)}
-                            disabled={item.cartQuantity >= item.quantity}
+                            onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                            disabled={item.quantity >= item.quantity}
                           >
                             <Plus className="h-4 w-4" />
                           </Button>
                         </div>
                         <div className="flex items-center gap-4">
-                          <p className="font-medium">{(item.newPrice * item.cartQuantity).toLocaleString()} so'm</p>
+                          <p className="font-medium">{(item.price * item.quantity).toLocaleString()} so'm</p>
                           <Button
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-red-500 hover:text-red-600"
-                            onClick={() => removeFromCart(item._id)}
+                            onClick={() => removeItem(item.id)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -109,7 +123,7 @@ export default function CartPage() {
               ))}
             </div>
             <div className="mt-6 flex justify-end">
-              <Button variant="destructive" onClick={clearCart}>
+              <Button variant="destructive" onClick={handleClearCart}>
                 Savatni tozalash
               </Button>
             </div>
@@ -122,16 +136,16 @@ export default function CartPage() {
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span>Mahsulotlar ({items.length})</span>
-                <span>{total.toLocaleString()} so'm</span>
+                <span>{totalPrice.toLocaleString()} so'm</span>
               </div>
               <div className="flex justify-between text-sm text-muted-foreground">
                 <span>Yetkazib berish</span>
-                <span>Buyurtma berish vaqtida hisoblanadi</span>
+                <span>Bepul</span>
               </div>
               <Separator />
               <div className="flex justify-between font-medium">
                 <span>Jami</span>
-                <span>{total.toLocaleString()} so'm</span>
+                <span>{totalPrice.toLocaleString()} so'm</span>
               </div>
               {user ? (
                 <Button className="w-full" size="lg" asChild>

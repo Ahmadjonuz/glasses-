@@ -3,7 +3,7 @@
 import useEmblaCarousel from 'embla-carousel-react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { ProductCard } from './ProductCard'
+import { ProductCard } from '@/components/product-card'
 import { Product } from '@/lib/types'
 
 interface ProductSliderProps {

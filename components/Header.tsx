@@ -9,7 +9,7 @@ import { useLikes } from '@/contexts/likes-context'
 
 export function Header() {
   const { user } = useAuth()
-  const { items } = useCart()
+  const { totalItems } = useCart()
   const { likedItems } = useLikes()
 
   return (
@@ -34,9 +34,9 @@ export function Header() {
             </Link>
             <Link href="/cart" className="relative hover:scale-110 transition-transform">
               <ShoppingCart className="h-5 w-5" />
-              {items.length > 0 && (
+              {totalItems > 0 && (
                 <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground animate-in zoom-in">
-                  {items.reduce((total, item) => total + item.cartQuantity, 0)}
+                  {totalItems}
                 </span>
               )}
             </Link>

@@ -1,9 +1,10 @@
 "use client"
 
-import { useOrders } from "@/contexts/orders-context"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, Trash2, XCircle } from "lucide-react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
+import { format } from "date-fns"
+import { Button } from "@/components/ui/button"
 import {
   Table,
   TableBody,
@@ -12,127 +13,147 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { format } from "date-fns"
-import { uz } from "date-fns/locale"
-import Image from "next/image"
-import { useToast } from "@/components/ui/use-toast"
+import { useAuth } from "@/contexts/auth-context"
+
+interface OrderItem {
+  id: string
+  name: string
+  price: number
+  quantity: number
+  image: string
+}
+
+interface Order {
+  id: string
+  items: OrderItem[]
+  createdAt: string
+  status: 'pending' | 'processing' | 'completed' | 'cancelled'
+}
 
 export default function OrdersPage() {
-  const { orders, deleteOrder, cancelOrder } = useOrders()
-  const { toast } = useToast()
+  const { user } = useAuth()
+  const [orders, setOrders] = useState<Order[]>([])
 
-  const handleDeleteOrder = (orderId: string) => {
-    deleteOrder(orderId)
-    toast({
-      title: "Buyurtma o'chirildi",
-      description: "Bekor qilingan buyurtma muvaffaqiyatli o'chirildi",
-    })
+  useEffect(() => {
+    if (!user) return
+    
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch('/api/orders')
+        const data = await response.json()
+        setOrders(data)
+      } catch (error) {
+        console.error('Error fetching orders:', error)
+      }
+    }
+
+    fetchOrders()
+  }, [user])
+
+  if (!user) {
+    return (
+      <div className="container py-12">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Buyurtmalar tarixi</h1>
+          <p className="text-muted-foreground mt-2">
+            Buyurtmalar tarixini ko'rish uchun tizimga kiring
+          </p>
+          <Link href="/auth/login">
+            <Button className="mt-4">
+              Tizimga kirish
+            </Button>
+          </Link>
+        </div>
+      </div>
+    )
   }
 
-  const handleCancelOrder = (orderId: string) => {
-    cancelOrder(orderId)
-    toast({
-      title: "Buyurtma bekor qilindi",
-      description: "Buyurtma muvaffaqiyatli bekor qilindi",
-    })
+  if (orders.length === 0) {
+    return (
+      <div className="container py-12">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Buyurtmalar tarixi</h1>
+          <p className="text-muted-foreground mt-2">
+            Sizda hali buyurtmalar yo'q
+          </p>
+          <Link href="/products">
+            <Button className="mt-4">
+              Mahsulotlar ro'yxatiga o'tish
+            </Button>
+          </Link>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="container py-8">
-      <div className="flex items-center gap-4 mb-8">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/">
-            <ArrowLeft className="h-4 w-4" />
+    <div className="container py-12">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">Buyurtmalar tarixi</h1>
+        <Button variant="outline" asChild>
+          <Link href="/products">
+            Xarid qilishni davom ettirish
           </Link>
         </Button>
-        <h1 className="text-2xl font-bold">Buyurtmalarim</h1>
       </div>
 
-      {orders.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-muted-foreground mb-4">Sizda hali buyurtmalar yo'q</p>
-          <Button asChild>
-            <Link href="/products">Xarid qilish</Link>
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-8">
-          {orders.map((order) => (
-            <div key={order.id} className="border rounded-lg p-6 space-y-4">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm text-muted-foreground">
-                    Buyurtma raqami: {order.id}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Sana: {format(new Date(order.createdAt), "d MMMM yyyy", { locale: uz })}
-                  </p>
-                </div>
-                <div className="text-right flex items-center gap-4">
-                  <p className="font-medium">
-                    Jami: {order.payment.total.toLocaleString()} so'm
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <p className={`text-sm ${
-                      order.status === "completed" ? "text-green-500" :
-                      order.status === "pending" ? "text-yellow-500" :
-                      "text-red-500"
+      <div className="rounded-lg border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Mahsulot</TableHead>
+              <TableHead>Nomi</TableHead>
+              <TableHead>Narxi</TableHead>
+              <TableHead>Soni</TableHead>
+              <TableHead>Jami</TableHead>
+              <TableHead>Sana</TableHead>
+              <TableHead>Holat</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {orders.map((order) => (
+              order.items.map((item) => (
+                <TableRow key={`${order.id}-${item.id}`}>
+                  <TableCell>
+                    <div className="relative h-16 w-16 overflow-hidden rounded-lg">
+                      <Image
+                        src={item.image}
+                        alt={item.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {item.name}
+                  </TableCell>
+                  <TableCell>{item.price.toLocaleString()} so'm</TableCell>
+                  <TableCell>{item.quantity}</TableCell>
+                  <TableCell>
+                    {(item.price * item.quantity).toLocaleString()} so'm
+                  </TableCell>
+                  <TableCell>
+                    {format(new Date(order.createdAt), 'dd.MM.yyyy')}
+                  </TableCell>
+                  <TableCell>
+                    <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                      order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                      order.status === 'completed' ? 'bg-green-100 text-green-800' :
+                      'bg-red-100 text-red-800'
                     }`}>
-                      {order.status === "completed" ? "Tugallandi" :
-                       order.status === "pending" ? "Kutilmoqda" :
-                       "Bekor qilingan"}
-                    </p>
-                    {order.status === "pending" && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-yellow-500 hover:text-yellow-600 hover:bg-yellow-50"
-                        onClick={() => handleCancelOrder(order.id)}
-                      >
-                        <XCircle className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {order.status === "cancelled" && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
-                        onClick={() => handleDeleteOrder(order.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Mahsulot</TableHead>
-                    <TableHead>Narxi</TableHead>
-                    <TableHead>Soni</TableHead>
-                    <TableHead>Jami</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {order.items.map((item) => (
-                    <TableRow key={item._id}>
-                      <TableCell className="font-medium">
-                        {item.name}
-                      </TableCell>
-                      <TableCell>{item.newPrice.toLocaleString()} so'm</TableCell>
-                      <TableCell>{item.cartQuantity}</TableCell>
-                      <TableCell>
-                        {(item.newPrice * item.cartQuantity).toLocaleString()} so'm
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ))}
-        </div>
-      )}
+                      {order.status === 'pending' ? 'Kutilmoqda' :
+                       order.status === 'processing' ? 'Jarayonda' :
+                       order.status === 'completed' ? 'Yakunlandi' :
+                       'Bekor qilindi'}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   )
 } 

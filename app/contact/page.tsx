@@ -31,12 +31,12 @@ const contactInfo = [
   {
     icon: Phone,
     title: "Telefon",
-    details: ["+998 91 142 88 77", "+998 90 009 88 69"]
+    details: ["+998 93 062 74 64", "+998 90 009 88 69"]
   },
   {
     icon: Mail,
     title: "Email",
-    details: ["karimovahmadjon@gmail.com"]
+    details: ["axmadxonovanasxon@gmail.com"]
   },
   {
     icon: Clock,
