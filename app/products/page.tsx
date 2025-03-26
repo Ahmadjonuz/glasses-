@@ -5,7 +5,7 @@ import { ProductCard } from "@/components/product-card"
 import { products } from "@/lib/products"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Header } from "@/components/header"
+import { Header } from "../../components/header"
 
 const categories = [
   { id: 'all', name: 'Barcha' },

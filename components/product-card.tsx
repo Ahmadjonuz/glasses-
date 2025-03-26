@@ -10,6 +10,7 @@ import { useCart } from "@/contexts/cart-context"
 import { useLikes } from "@/contexts/likes-context"
 import { useAuth } from "@/contexts/auth-context"
 import toast from 'react-hot-toast'
+import { StaticImageData } from 'next/image'
 
 interface Product {
   _id: string
@@ -17,7 +18,7 @@ interface Product {
   description: string
   price: number
   oldPrice?: number
-  image: string
+  image: string | StaticImageData
   category: string
 }
 
@@ -35,7 +36,7 @@ export function ProductCard({ product }: ProductCardProps) {
       id: product._id,
       name: product.name,
       price: product.price,
-      image: product.image,
+      image: typeof product.image === 'string' ? product.image : product.image.src,
       quantity: 1
     })
     toast.success("Mahsulot savatga qo'shildi")
