@@ -13,6 +13,7 @@ const mockClient = {
     signOut: () => Promise.resolve({ error: null }),
     signInWithPassword: () => Promise.resolve({ data: { user: null }, error: null }),
     signUp: () => Promise.resolve({ data: { user: null }, error: null }),
+    updateUser: () => Promise.resolve({ data: { user: null }, error: null }),
   },
   from: () => ({
     select: () => Promise.resolve({ data: [], error: null }),
