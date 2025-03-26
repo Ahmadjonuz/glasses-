@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { supabase } from "@/lib/supabase"
-import { toast } from "sonner"
+import toast from 'react-hot-toast'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -29,7 +29,7 @@ export default function LoginPage() {
 
       if (error) throw error
 
-      toast.success("Muvaffaqiyatli kirdingiz!")
+      toast.success("Muvaffaqiyatli kirdingiz")
       router.push("/")
       router.refresh()
     } catch (error: any) {

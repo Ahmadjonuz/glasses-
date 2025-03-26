@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { supabase } from "@/lib/supabase"
-import { toast } from "sonner"
+import toast from 'react-hot-toast'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -42,7 +42,7 @@ export default function RegisterPage() {
 
       if (error) throw error
 
-      toast.success("Ro'yxatdan o'tish muvaffaqiyatli! Iltimos, emailingizni tasdiqlang.")
+      toast.success("Muvaffaqiyatli ro'yxatdan o'tdingiz")
       router.push("/auth/login")
     } catch (error: any) {
       toast.error(error.message)

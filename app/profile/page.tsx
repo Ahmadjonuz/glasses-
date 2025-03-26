@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useCart } from "@/contexts/cart-context"
-import { toast } from "sonner"
+import toast from 'react-hot-toast'
 
 export default function ProfilePage() {
   const { items, clearCart } = useCart()

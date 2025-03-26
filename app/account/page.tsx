@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { supabase } from "@/lib/supabase"
-import { toast } from "sonner"
+import toast from 'react-hot-toast'
 import { useAuth } from "@/contexts/auth-context"
 import { ArrowLeft } from "lucide-react"
 
@@ -41,7 +41,7 @@ export default function AccountPage() {
 
       if (error) throw error
 
-      toast.success("Profil muvaffaqiyatli yangilandi!")
+      toast.success("Profil muvaffaqiyatli yangilandi")
     } catch (error: any) {
       toast.error(error.message)
     } finally {
