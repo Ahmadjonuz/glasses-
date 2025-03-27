@@ -1,6 +1,10 @@
 # VisionVogue - Online Ko'zoynak Do'koni
 
 Zamonaviy va sifatli ko'zoynaklar uchun onlayn do'kon.
+![image](https://github.com/user-attachments/assets/007c6b34-631b-4af3-8262-8c3c2419a417)
+![image](https://github.com/user-attachments/assets/6a066742-d099-4e0c-9bba-0b6c60900ecc)
+
+
 
 ## Texnologiyalar
 
