@@ -1,6 +1,6 @@
 'use client'
 
-import { useOrders } from '@/contexts/orders-context'
+import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Package, CreditCard, MapPin, Calendar, User, Phone, Mail } from 'lucide-react'
@@ -8,9 +8,46 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 
+interface OrderItem {
+  id: string
+  name: string
+  price: number
+  quantity: number
+  image: string
+}
+
+interface Order {
+  id: string
+  items: OrderItem[]
+  total_price: number
+  status: 'pending' | 'processing' | 'completed' | 'cancelled'
+  created_at: string
+}
+
 export default function OrderDetailsPage({ params }: { params: { id: string } }) {
-  const { orders } = useOrders()
-  const order = orders.find(o => o.id === params.id)
+  const [order, setOrder] = useState<Order | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchOrder = async () => {
+      try {
+        const response = await fetch(`/api/orders/${params.id}`)
+        if (!response.ok) throw new Error('Order not found')
+        const data = await response.json()
+        setOrder(data)
+      } catch (error) {
+        console.error('Error fetching order:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchOrder()
+  }, [params.id])
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
 
   if (!order) {
     notFound()
@@ -53,37 +90,6 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
               ))}
             </div>
           </Card>
-
-          {/* Shipping Information */}
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Yetkazib berish ma'lumotlari</h2>
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <span>
-                  {order.shipping.firstName} {order.shipping.lastName}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-muted-foreground" />
-                <span>{order.shipping.phone}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4 text-muted-foreground" />
-                <span>{order.shipping.email}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span>
-                  {order.shipping.address}, {order.shipping.city}, {order.shipping.state} {order.shipping.pincode}
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-muted-foreground" />
-                <span>{order.shipping.method}</span>
-              </div>
-            </div>
-          </Card>
         </div>
 
         {/* Order Summary */}
@@ -94,7 +100,7 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  {new Date(order.createdAt).toLocaleDateString('uz-UZ', {
+                  {new Date(order.created_at).toLocaleDateString('uz-UZ', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric',
@@ -103,24 +109,10 @@ export default function OrderDetailsPage({ params }: { params: { id: string } })
                   })}
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <CreditCard className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">
-                  {order.payment.method}
-                </span>
-              </div>
               <div className="pt-4 border-t">
-                <div className="flex justify-between mb-2">
-                  <span>Mahsulotlar ({order.items.length})</span>
-                  <span>{(order.payment.total - order.shipping.cost).toLocaleString()} so'm</span>
-                </div>
-                <div className="flex justify-between mb-2">
-                  <span>Yetkazib berish</span>
-                  <span>{order.shipping.cost.toLocaleString()} so'm</span>
-                </div>
                 <div className="flex justify-between font-medium pt-2 border-t">
                   <span>Jami</span>
-                  <span>{order.payment.total.toLocaleString()} so'm</span>
+                  <span>{order.total_price.toLocaleString()} so'm</span>
                 </div>
               </div>
             </div>

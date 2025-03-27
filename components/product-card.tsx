@@ -57,7 +57,7 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   const formatPrice = (price: number) => {
-    return price.toLocaleString('uz-UZ')
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ")
   }
 
   return (

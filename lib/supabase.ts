@@ -15,9 +15,17 @@ const mockClient = {
     signUp: () => Promise.resolve({ data: { user: null }, error: null }),
     updateUser: () => Promise.resolve({ data: { user: null }, error: null }),
   },
-  from: () => ({
-    select: () => Promise.resolve({ data: [], error: null }),
-    insert: () => Promise.resolve({ data: null, error: null }),
+  from: (table: string) => ({
+    select: () => ({
+      eq: () => ({
+        order: () => Promise.resolve({ data: [], error: null })
+      })
+    }),
+    insert: () => ({
+      select: () => ({
+        single: () => Promise.resolve({ data: null, error: null })
+      })
+    }),
     update: () => Promise.resolve({ data: null, error: null }),
     delete: () => Promise.resolve({ data: null, error: null }),
   }),
